@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden;">
+<script>
+let questions = [
+  {number: 121, text: "Do we need war?"},
+  {number: 193, text: "When should someone have a phone for the first time? When did you?"},
+  {number: 7, text: "What's your lucky number and why?"},
+  {number: 55, text: "What matters more: past, future, or present?"},
+  {number: 96, text: "Who should pay for the first date?"},
+  {number: 84, text: "Do you believe in soulmates?"},
+  {number: 183, text: "Would you rather talk to your future or past self? What would you say?"},
+  {number: 157, text: "What did you want to be growing up?"},
+  {number: 64, text: "Do you think being an adult is under- or overrated?"},
+  {number: 24, text: "Would you rather see or feel?"},
+  {number: 134, text: "Do you believe in manifestations?"},
+  {number: 189, text: "What's the best advice you've received?"},
+  {number: 67, text: "Do people change?"},
+  {number: 120, text: "How are you brainwashed?"},
+  {number: 154, text: "Do you use AI a lot? What are your thoughts on AI & work?"},
+  {number: 4, text: "Would you rather be wealthy or youthful?"},
+  {number: 122, text: "What's your favourite drink?"},
+  {number: 149, text: "Do you have a good work-life balance?"},
+  {number: 173, text: "Do you have any phobias?"},
+  {number: 108, text: "Is divorce better or worse for the kids?"},
+  {number: 86, text: "How did your parents meet?"},
+  {number: 174, text: "What would you get as a tattoo if you could right now?"},
+  {number: 1, text: "Would you change your life if you had the chance?"},
+  {number: 15, text: "Are you an optimist or a pessimist?"},
+  {number: 169, text: "Is home a place or people?"},
+  {number: 58, text: "What was the last thing you learned?"},
+  {number: 147, text: "Have you had any near-death experiences?"},
+  {number: 52, text: "When was the last time you spent all day without looking at your phone?"},
+  {number: 46, text: "What's the best advice you've received?"},
+  {number: 142, text: "Do you believe in coincidences?"},
+  {number: 167, text: "What's your community?"},
+  {number: 127, text: "What's the last thing you stole?"},
+  {number: 98, text: "What is cheating to you?"},
+  {number: 111, text: "Who do you look up to?"},
+  {number: 117, text: "Would you rather never leave your country or travel but never come back?"},
+  {number: 113, text: "What's your ick?"},
+  {number: 162, text: "What would you do if success was guaranteed?"},
+  {number: 137, text: "Do you think we're in a simulation?"},
+  {number: 27, text: "What would you do if you hit rock bottom?"},
+  {number: 30, text: "Do looks matter?"},
+  {number: 75, text: "Who would you let go through your phone?"},
+  {number: 94, text: "Would you rather break up or be broken up with?"},
+  {number: 131, text: "Is an alternative to capitalism possible?"},
+  {number: 104, text: "What's a red flag?"},
+  {number: 92, text: "Can you be friends with your ex?"},
+  {number: 182, text: "How did you feel about COVID? And the before and after?"},
+  {number: 63, text: "What do you overthink about?"},
+  {number: 73, text: "What's your spirit/favourite animal?"},
+  {number: 85, text: "Would you rather cheat or be cheated on?"},
+  {number: 112, text: "Which era would you be alive in if it wasn't this one?"},
+  {number: 61, text: "Would you rather be immortal or able to teleport?"},
+  {number: 106, text: "Do you have a good gut feeling?"},
+  {number: 145, text: "What would you want to reincarnate as?"},
+  {number: 103, text: "What are your green flags?"},
+  {number: 22, text: "What makes you proud of yourself?"},
+  {number: 9, text: "Which celebrity or historical figure would you invite to a party?"},
+  {number: 184, text: "Is globalisation good?"},
+  {number: 77, text: "What is stronger, nature or nurture?"},
+  {number: 129, text: "Do you believe in free will?"},
+  {number: 155, text: "What's your wildest dream?"},
+  {number: 38, text: "Would you rather know when or how you die?"},
+  {number: 115, text: "Would you pay for privacy?"},
+  {number: 133, text: "What are you most proud of?"},
+  {number: 8, text: "Do you have any recurring dreams? Or have you ever had a lucid dream?"},
+  {number: 6, text: "Does money make you happier?"},
+  {number: 180, text: "Would you rather be poor but have no responsibilities or be rich but always work?"},
+  {number: 71, text: "Where do you see yourself in 10 years?"},
+  {number: 161, text: "What kind of shop would you open?"},
+  {number: 192, text: "What song can you never get enough of?"},
+  {number: 140, text: "What is success to you?"},
+  {number: 21, text: "What is success?"},
+  {number: 2, text: "What collections/obsessions do you have?"},
+  {number: 70, text: "What would you call your children?"},
+  {number: 57, text: "Bath or shower? Morning or night?"},
+  {number: 76, text: "Do you think there are good and bad people?"},
+  {number: 143, text: "What superpower would you want to have?"},
+  {number: 88, text: "Can you have sex with someone and still be friends?"},
+  {number: 109, text: "How are girls and boys different?"},
+  {number: 144, text: "Which historic event would you want to witness?"},
+  {number: 5, text: "What would you do with 1 million dollars?"},
+  {number: 164, text: "What's the hardest lesson you've learned?"},
+  {number: 190, text: "Are you a morning or night person?"},
+  {number: 116, text: "Are you more similar to your mom or dad?"},
+  {number: 119, text: "How much can you hold people accountable for their actions when drunk?"},
+  {number: 102, text: "How good is your gaydar?"},
+  {number: 32, text: "Do you listen or talk more?"},
+  {number: 3, text: "Why would you end up in prison?"},
+  {number: 87, text: "What's your parents' job?"},
+  {number: 176, text: "Do you talk to yourself?"},
+  {number: 101, text: "How young were you when you had your first kiss?"},
+  {number: 107, text: "Can you date someone who doesn't have the same beliefs as you?"},
+  {number: 35, text: "Do you believe in spirits, souls, and ghosts?"},
+  {number: 36, text: "What would you do if you only had one day left?"},
+  {number: 14, text: "Have you ever been in a fight?"},
+  {number: 177, text: "Would you rather talk to your older or younger self?"},
+  {number: 168, text: "Do you think you fit in?"},
+  {number: 126, text: "How do you know you made the right choice? Are you indecisive?"},
+  {number: 59, text: "What culture/community do you come from?"},
+  {number: 68, text: "Do you believe in karma?"},
+  {number: 175, text: "Do you like being home alone?"},
+  {number: 41, text: "Is ego good?"},
+  {number: 19, text: "Are you superstitious?"},
+  {number: 186, text: "If there weren't a language barrier, where would you live?"},
+  {number: 20, text: "What kind of smart are you?"},
+  {number: 43, text: "What would you change from your past?"},
+  {number: 132, text: "Which role would you have in a cult?"},
+  {number: 114, text: "Would you rather only have your friends or family?"},
+  {number: 18, text: "If you had one question for God, what would it be?"},
+  {number: 185, text: "Why is the far right on the rise?"},
+  {number: 49, text: "Do you like what you do? Why do you do what you do?"},
+  {number: 159, text: "Would you rather work for the rest of your life but not make money or vice versa?"},
+  {number: 44, text: "Who do you trust the most?"},
+  {number: 178, text: "What makes you competitive?"},
+  {number: 97, text: "Fuck, marry, kill: fame, power, money?"},
+  {number: 141, text: "If you knew what you know now, what would you change?"},
+  {number: 13, text: "Are you close with your siblings?"},
+  {number: 89, text: "Do you believe in second chances?"},
+  {number: 51, text: "What are the differences between humans and computers/animals/and AI?"},
+  {number: 79, text: "Are you good at reading people?"},
+  {number: 152, text: "What's your dream job?"},
+  {number: 28, text: "Would you rather be homeless or in prison?"},
+  {number: 158, text: "What would you do if you were president?"},
+  {number: 34, text: "Do you believe in faith/destiny?"},
+  {number: 171, text: "Who do you text every day?"},
+  {number: 56, text: "Would you rather entertain or be entertained?"},
+  {number: 11, text: "Do you have a good gut feeling?"},
+  {number: 16, text: "Would you rather go to the future or the past?"},
+  {number: 95, text: "Would you still marry someone if your family didn't approve?"},
+  {number: 123, text: "What's something you promised yourself you'd never do when young, that you did?"},
+  {number: 118, text: "Do you care about/follow politics?"},
+  {number: 80, text: "How can you tell when someone is lying?"},
+  {number: 138, text: "Would you rather know how or when you die?"},
+  {number: 172, text: "Biggie or Tupac?"},
+  {number: 105, text: "Can you trust first impressions?"},
+  {number: 163, text: "Were you good at school?"},
+  {number: 150, text: "Is gossiping good?"},
+  {number: 40, text: "Is ignorance bliss?"},
+  {number: 29, text: "Would you rather love or be loved?"},
+  {number: 12, text: "Do you have any brands you never buy from?"},
+  {number: 181, text: "Do you trust our government?"},
+  {number: 31, text: "Love or loyalty?"},
+  {number: 146, text: "Who would you dedicate your book to?"},
+  {number: 124, text: "If you could have 3 houses around the world, where would they be?"},
+  {number: 25, text: "What conspiracy theories do you believe in?"},
+  {number: 17, text: "Would you be friends with yourself if you met yourself?"},
+  {number: 83, text: "Are humans meant to be monogamous?"},
+  {number: 170, text: "What fandom are you a part of?"},
+  {number: 62, text: "What culture shocks have you experienced?"},
+  {number: 130, text: "Would you rather be born with or without technology?"},
+  {number: 153, text: "If you had to do one sport at the Olympics, what would you do?"},
+  {number: 60, text: "Do you believe there is a god?"},
+  {number: 100, text: "What's your best breakup story?"},
+  {number: 156, text: "Who's the artist that influenced you the most?"},
+  {number: 72, text: "Do you feel like an adult?"},
+  {number: 66, text: "Does the past define you?"},
+  {number: 26, text: "Do you think everything happens for a reason?"},
+  {number: 148, text: "What would you do if you accidentally killed someone?"},
+  {number: 48, text: "What's the app you use the most?"},
+  {number: 45, text: "What advice do you wish you'd taken seriously when you were younger?"},
+  {number: 191, text: "What's on your bucket list?"},
+  {number: 10, text: "Can you differentiate the art from the artist?"},
+  {number: 125, text: "Would you tell a friend if they're marrying the wrong person?"},
+  {number: 136, text: "What are you grateful for?"},
+  {number: 91, text: "What's your love language?"},
+  {number: 53, text: "What are you most optimistic about in the future?"},
+  {number: 160, text: "Would you rather be in debt or have someone owe you money?"},
+  {number: 82, text: "Would you rather ghost someone or be ghosted?"},
+  {number: 81, text: "When was the last time you apologised?"},
+  {number: 194, text: "What's your favourite holiday?"}
+];
+
+let currentQuestion = {};
+let revealProgress = 0;
+let isDarkMode = false;
+let scrollText = "RANDOM CONVERSATION GENERATOR";
+let scrollTextBottom = "CLICK FOR NEXT QUESTION";
+let scrollX = 0;
+let scrollOnTop = true;
+let scrollDirection = 1;
+let usedQuestions = [];
+let questionIndex = 0;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textFont('Courier New');
+  generateNewQuestion();
+  resetScroll();
+}
+
+function draw() {
+  background(isDarkMode ? 0 : 255);
+  drawScrollingText();
+  drawQuestion();
+  drawCursor();
+}
+
+function drawScrollingText() {
+  fill(isDarkMode ? 255 : 0);
+  noStroke();
+  textSize(14);
+  textStyle(NORMAL);
+  
+  let currentText = scrollOnTop ? scrollText : scrollTextBottom;
+  let y = scrollOnTop ? 40 : height - 20;
+  text(currentText, scrollX, y);
+  scrollX += scrollDirection * 1; // Slower scroll speed
+  let textW = textWidth(currentText);
+  if ((scrollDirection === 1 && scrollX > width) || (scrollDirection === -1 && scrollX < -textW)) {
+    scrollOnTop = !scrollOnTop;
+    scrollDirection *= -1;
+    resetScroll();
+  }
+}
+
+function resetScroll() {
+  let currentText = scrollOnTop ? scrollText : scrollTextBottom;
+  scrollX = scrollDirection === 1 ? -textWidth(currentText) : width;
+}
+
+function drawQuestion() {
+  let fullText = `${currentQuestion.number} - ${currentQuestion.text}`;
+  let numChars = floor(fullText.length * revealProgress);
+  let displayText = fullText.substring(0, numChars);
+  
+  fill(isDarkMode ? 255 : 0);
+  textSize(26);
+  textAlign(LEFT, CENTER);
+  
+  let margin = 60;
+  let maxWidth = width - (margin * 2);
+  let lineHeight = 35;
+  
+  // Check if text fits on one line
+  if (textWidth(fullText) <= maxWidth) {
+    // Single line - center it horizontally
+    let startX = width / 2 - textWidth(fullText) / 2;
+    text(displayText, startX, height / 2);
+    
+    // Draw cursor bar at end of text
+    text("|", startX + textWidth(displayText), height / 2);
+  } else {
+    // Multiple lines - wrap and center block
+    let words = displayText.split(' ');
+    let lines = [];
+    let currentLine = '';
+    
+    // Wrap text to fit width
+    for (let word of words) {
+      let testLine = currentLine + (currentLine ? ' ' : '') + word;
+      if (textWidth(testLine) < maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+    
+    // Center the text block vertically and horizontally
+    let totalHeight = lines.length * lineHeight;
+    let startY = height / 2 - totalHeight / 2 + lineHeight / 2;
+    
+    // Draw each line centered
+    for (let i = 0; i < lines.length; i++) {
+      let lineStartX = width / 2 - textWidth(lines[i]) / 2;
+      text(lines[i], lineStartX, startY + (i * lineHeight));
+    }
+    
+    // Draw cursor bar at end of last line
+    if (lines.length > 0) {
+      let lastLine = lines[lines.length - 1];
+      let lastLineX = width / 2 - textWidth(lastLine) / 2;
+      let lastLineY = startY + ((lines.length - 1) * lineHeight);
+      
+      text("|", lastLineX + textWidth(lastLine), lastLineY);
+    }
+  }
+  
+  // Continue typing if not complete - moderate pace for all questions
+  if (numChars < fullText.length) {
+    revealProgress += 0.01; // Good typing speed for all
+  }
+}
+
+function drawCursor() {
+  fill(isDarkMode ? 255 : 0, 200);
+  noStroke();
+  textSize(60);
+  text("?", mouseX, mouseY);
+}
+
+function mousePressed() {
+  generateNewQuestion();
+  isDarkMode = !isDarkMode;
+}
+
+function generateNewQuestion() {
+  // Get next question in the shuffled array
+  currentQuestion = questions[questionIndex % questions.length];
+  questionIndex++;
+  revealProgress = 0; // Reset typing progress
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+</body>
+</html>
