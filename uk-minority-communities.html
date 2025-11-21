@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK Minority Communities Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .header p {
+      font-size: 1.2em;
+      opacity: 0.95;
+    }
+
+    #map {
+      width: 100%;
+      height: 700px;
+      border: none;
+    }
+
+    .info-panel {
+      padding: 25px;
+      background: #f8f9fa;
+    }
+
+    .legend {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .legend h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 1.3em;
+    }
+
+    .legend-item {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legend-icon {
+      font-size: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-card h4 {
+      color: #667eea;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .stat-card .value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .banana-marker {
+      font-size: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .banana-marker:hover {
+      transform: scale(1.3) rotate(10deg);
+    }
+
+    .custom-popup {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .custom-popup h3 {
+      margin: 0 0 10px 0;
+      color: #667eea;
+    }
+
+    .custom-popup p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .custom-popup strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🍌 UK Minority Communities Map 🍌</h1>
+      <p>Exploring diversity across the United Kingdom with banana markers</p>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="info-panel">
+      <div class="legend">
+        <h3>About This Visualization</h3>
+        <div class="legend-item">
+          <span class="legend-icon">🍌</span>
+          <span>Each banana represents a major UK city with significant minority community populations</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-icon">📊</span>
+          <span>Click on any banana to see detailed demographic information</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-icon">🗺️</span>
+          <span>Data based on UK Census and demographic studies</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h4>Total Cities Mapped</h4>
+          <div class="value" id="total-cities">0</div>
+        </div>
+        <div class="stat-card">
+          <h4>Highest Diversity</h4>
+          <div class="value" id="highest-diversity">-</div>
+        </div>
+        <div class="stat-card">
+          <h4>UK Population</h4>
+          <div class="value">67M+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // UK minority communities data with major cities
+    const ukCommunities = [
+      {
+        city: "London",
+        lat: 51.5074,
+        lng: -0.1278,
+        population: 9000000,
+        minorityPercent: 40.2,
+        majorGroups: ["South Asian", "Black African", "Black Caribbean", "Chinese", "Arab"],
+        details: "London is one of the most diverse cities in the world, with over 300 languages spoken."
+      },
+      {
+        city: "Birmingham",
+        lat: 52.4862,
+        lng: -1.8904,
+        population: 1150000,
+        minorityPercent: 42.9,
+        majorGroups: ["South Asian", "Black Caribbean", "Black African", "Chinese"],
+        details: "Birmingham has significant Pakistani, Bangladeshi, and Caribbean communities."
+      },
+      {
+        city: "Manchester",
+        lat: 53.4808,
+        lng: -2.2426,
+        population: 547627,
+        minorityPercent: 33.5,
+        majorGroups: ["South Asian", "Black African", "Arab", "Chinese"],
+        details: "Manchester has a rich multicultural history with growing diverse communities."
+      },
+      {
+        city: "Leicester",
+        lat: 52.6369,
+        lng: -1.1398,
+        population: 368000,
+        minorityPercent: 50.6,
+        majorGroups: ["Indian", "Pakistani", "Black African", "Bangladeshi"],
+        details: "Leicester became the first UK city where ethnic minorities formed the majority."
+      },
+      {
+        city: "Bradford",
+        lat: 53.7960,
+        lng: -1.7594,
+        population: 546400,
+        minorityPercent: 36.0,
+        majorGroups: ["Pakistani", "Indian", "Bangladeshi", "Eastern European"],
+        details: "Bradford has one of the largest Pakistani communities in the UK."
+      },
+      {
+        city: "Leeds",
+        lat: 53.8008,
+        lng: -1.5491,
+        population: 793139,
+        minorityPercent: 18.9,
+        majorGroups: ["South Asian", "Black African", "Chinese", "Arab"],
+        details: "Leeds has diverse communities with significant South Asian population."
+      },
+      {
+        city: "Glasgow",
+        lat: 55.8642,
+        lng: -4.2518,
+        population: 633120,
+        minorityPercent: 12.0,
+        majorGroups: ["Pakistani", "Indian", "Chinese", "Polish"],
+        details: "Glasgow's diversity has grown significantly with South Asian communities."
+      },
+      {
+        city: "Luton",
+        lat: 51.8787,
+        lng: -0.4200,
+        population: 213528,
+        minorityPercent: 54.8,
+        majorGroups: ["Pakistani", "Bangladeshi", "Indian", "Black African"],
+        details: "Luton has one of the highest proportions of minority ethnic residents in England."
+      },
+      {
+        city: "Slough",
+        lat: 51.5105,
+        lng: -0.5950,
+        population: 158000,
+        minorityPercent: 63.2,
+        majorGroups: ["Pakistani", "Indian", "Black African", "Polish"],
+        details: "Slough is one of the most ethnically diverse areas outside London."
+      },
+      {
+        city: "Bristol",
+        lat: 51.4545,
+        lng: -2.5879,
+        population: 463377,
+        minorityPercent: 16.0,
+        majorGroups: ["Black African", "Black Caribbean", "South Asian", "Chinese"],
+        details: "Bristol has historic Caribbean communities and growing African populations."
+      },
+      {
+        city: "Liverpool",
+        lat: 53.4084,
+        lng: -2.9916,
+        population: 498042,
+        minorityPercent: 14.7,
+        majorGroups: ["Black African", "Chinese", "South Asian", "Arab"],
+        details: "Liverpool has one of the oldest Black communities in Britain."
+      },
+      {
+        city: "Nottingham",
+        lat: 52.9548,
+        lng: -1.1581,
+        population: 331069,
+        minorityPercent: 28.0,
+        majorGroups: ["South Asian", "Black Caribbean", "Black African", "Chinese"],
+        details: "Nottingham has significant Pakistani and Caribbean communities."
+      },
+      {
+        city: "Sheffield",
+        lat: 53.3811,
+        lng: -1.4701,
+        population: 584028,
+        minorityPercent: 16.0,
+        majorGroups: ["Pakistani", "Somali", "Yemeni", "Chinese"],
+        details: "Sheffield has diverse communities including significant Somali and Yemeni populations."
+      },
+      {
+        city: "Cardiff",
+        lat: 51.4816,
+        lng: -3.1791,
+        population: 362756,
+        minorityPercent: 15.8,
+        majorGroups: ["South Asian", "Black African", "Chinese", "Arab"],
+        details: "Cardiff has grown into Wales' most diverse city with multicultural communities."
+      },
+      {
+        city: "Coventry",
+        lat: 52.4068,
+        lng: -1.5197,
+        population: 345385,
+        minorityPercent: 33.4,
+        majorGroups: ["South Asian", "Black African", "Black Caribbean", "Polish"],
+        details: "Coventry has significant South Asian and Eastern European communities."
+      },
+      {
+        city: "Oldham",
+        lat: 53.5444,
+        lng: -2.1169,
+        population: 237110,
+        minorityPercent: 30.0,
+        majorGroups: ["Pakistani", "Bangladeshi", "Indian", "Black African"],
+        details: "Oldham has strong Pakistani and Bangladeshi communities."
+      },
+      {
+        city: "Reading",
+        lat: 51.4543,
+        lng: -0.9781,
+        population: 174224,
+        minorityPercent: 31.3,
+        majorGroups: ["South Asian", "Black African", "Chinese", "Polish"],
+        details: "Reading has become increasingly diverse with tech industry growth."
+      },
+      {
+        city: "Bolton",
+        lat: 53.5768,
+        lng: -2.4282,
+        population: 287550,
+        minorityPercent: 21.0,
+        majorGroups: ["South Asian", "Black African", "Eastern European"],
+        details: "Bolton has significant Indian and Pakistani communities."
+      }
+    ];
+
+    // Initialize the map centered on UK
+    const map = L.map('map').setView([54.5, -3.5], 6);
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    // Create custom banana icon
+    const createBananaIcon = (size) => {
+      return L.divIcon({
+        className: 'banana-marker',
+        html: '🍌',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2],
+        popupAnchor: [0, -size/2]
+      });
+    };
+
+    // Add markers for each community
+    ukCommunities.forEach(community => {
+      // Size banana based on minority percentage
+      const iconSize = 30 + (community.minorityPercent / 2);
+
+      const marker = L.marker([community.lat, community.lng], {
+        icon: createBananaIcon(iconSize)
+      }).addTo(map);
+
+      // Create popup content
+      const popupContent = `
+        <div class="custom-popup">
+          <h3>${community.city}</h3>
+          <p><strong>Population:</strong> ${community.population.toLocaleString()}</p>
+          <p><strong>Minority Percentage:</strong> ${community.minorityPercent}%</p>
+          <p><strong>Major Communities:</strong></p>
+          <ul>
+            ${community.majorGroups.map(group => `<li>${group}</li>`).join('')}
+          </ul>
+          <p style="margin-top: 10px; font-style: italic;">${community.details}</p>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        maxWidth: 300,
+        className: 'custom-popup-wrapper'
+      });
+
+      // Add hover effect
+      marker.on('mouseover', function() {
+        this.openPopup();
+      });
+    });
+
+    // Update statistics
+    document.getElementById('total-cities').textContent = ukCommunities.length;
+
+    // Find city with highest diversity
+    const mostDiverse = ukCommunities.reduce((max, city) =>
+      city.minorityPercent > max.minorityPercent ? city : max
+    );
+    document.getElementById('highest-diversity').textContent = mostDiverse.city;
+
+    // Add banana animation on load
+    setTimeout(() => {
+      const bananas = document.querySelectorAll('.banana-marker');
+      bananas.forEach((banana, index) => {
+        setTimeout(() => {
+          banana.style.animation = 'bounce 0.5s ease';
+        }, index * 50);
+      });
+    }, 500);
+  </script>
+</body>
+</html>
